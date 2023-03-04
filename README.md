@@ -4,6 +4,7 @@
 Каждое произведение разделено на жанры (пример: "Массовое кино", "Рэп", "Сказка")
 Только администратор может создавать новые жанры.
 
+![workflow](https://github.com/just_siddy/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg?branch=master&event=push)
 
 ## Настрока и запуск сервера в контейнере:
 1) Клонировать репозиторий:
