@@ -72,7 +72,7 @@ jobs:
             sudo docker-compose up -d
 
   send_message:
-    runs-on: ubuntu-lattest
+    runs-on: ubuntu-latest
     needs: deploy
     steps:
     - name: send message
@@ -80,4 +80,4 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: ${{ github.workflow }} успушно выполнен!
+        message: ${{ github.workflow }} успешно выполнен!
