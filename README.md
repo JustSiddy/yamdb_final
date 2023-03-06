@@ -9,7 +9,7 @@
 ## Настрока и запуск сервера в контейнере:
 1) Клонировать репозиторий:
 ``` 
-git clone https://github.com/JustSiddy/infra_sp2.git
+git clone https://github.com/JustSiddy/yamdb_final.git
 ```
 2) Переидти в папку:
 ``` 
