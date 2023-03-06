@@ -4,7 +4,7 @@
 Каждое произведение разделено на жанры (пример: "Массовое кино", "Рэп", "Сказка")
 Только администратор может создавать новые жанры.
 
-![Django-app workflow](https://github.com/justsiddy/docs/actions/workflows/main.yml/badge.svg)
+![Django-app workflow](https://github.com/justsiddy/yamdb_final/actions/workflows/yamdb_workflow.yaml/badge.svg)
 
 ## Настрока и запуск сервера в контейнере:
 1) Клонировать репозиторий:
