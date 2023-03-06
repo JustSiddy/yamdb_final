@@ -14,7 +14,10 @@ SECRET_KEY = (
 
 load_dotenv()
 
-DEBUG = os.getenv('DEBUG', default='False')
+if socket.gethostname() != 'localhost':
+    DEBUG = False
+else:
+    DEBUG = True
 
 ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', default='*')]
 
