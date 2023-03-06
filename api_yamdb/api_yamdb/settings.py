@@ -1,4 +1,5 @@
 import os
+import socket
 
 from dotenv import load_dotenv
 
@@ -13,9 +14,12 @@ SECRET_KEY = (
 
 load_dotenv()
 
-DEBUG = os.getenv('DEBUG', False)
+if socket.gethostname() != 'localhost':
+    DEBUG = False
+else:
+    DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', default='*')]
 
 
 # Application definition
