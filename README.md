@@ -41,7 +41,7 @@ docker-compose exec web python manage.py loaddata ../infra/fixtures.json
 ```
 
 ## Документация Redoc:
-Запустите проект локально и переидите на страницу http://51.250.30.2/redoc/
+Запустите проект локально и переидите на страницу http://158.160.23.137/redoc/
 
 ## Стек:
 ```
