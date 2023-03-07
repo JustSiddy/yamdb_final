@@ -46,7 +46,7 @@ jobs:
         with:
           push: true
           context: ./api_yamdb/
-          tags: justs1ddy/yamdb_final:v1.0.1
+          tags: justs1ddy/yamdb:v1
 
   deploy:
     runs-on: ubuntu-latest
