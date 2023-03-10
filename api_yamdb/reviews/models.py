@@ -56,7 +56,9 @@ class Title(models.Model):
     class Meta:
         constraints = [models.CheckConstraint(
             check=Q(year__lte=dt.datetime.today().year),
-            name='year__lte=now_year')]
+            name='year__lte=now_year'
+        )
+        ]
         verbose_name_plural = 'Произведения'
 
     def __str__(self):
