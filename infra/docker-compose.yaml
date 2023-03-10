@@ -9,7 +9,7 @@ services:
       - ./.env
 
   web:
-    image: justs1ddy/yamdb:v1
+    image: justs1ddy/yamdb:v1.1
     restart: always
     volumes:
       - static_value:/app/static/
