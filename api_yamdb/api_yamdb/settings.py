@@ -15,7 +15,7 @@ load_dotenv()
 
 DEBUG = os.getenv('DEBUG', False)
 
-ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', default='*')]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
