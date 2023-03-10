@@ -1,57 +1,173 @@
+import datetime as dt
+
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-from reviews.models import Comment, Follow, Group, Post, User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from reviews.models import Categorie, Comment, Genre, Review, Title
+from users.models import User
 
 
-class PostSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True)
+class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Genre."""
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+        lookup_field = 'slug'
+
+
+class CategorieSerializer(serializers.ModelSerializer):
+    """Сериалтзатор для модели Categorie."""
+    class Meta:
+        model = Categorie
+        fields = ('name', 'slug')
+        lookup_field = 'slug'
+
+
+class TitleGetSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title.
+    Для GET запросов к эндпоинтам /title/ и /title/id/.
+    """
+
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorieSerializer(read_only=True)
+    rating = serializers.IntegerField(
+        min_value=0,
+        max_value=10,
+        read_only=True,
+        required=False)
 
     class Meta:
-        model = Post
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'category', 'genre', 'description', 'year', 'rating')
+        model = Title
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class TitlePostSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title.
+    Для POST запросов к эндпоинтам /title/ и /title/id/.
+    """
+    genre = serializers.SlugRelatedField(
+        many=True,
+        slug_field='slug',
+        queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Categorie.objects.all())
 
     class Meta:
-        model = Group
-        fields = '__all__'
+        fields = ('id', 'name', 'category', 'genre', 'description', 'year')
+        model = Title
+
+    def validate_year(self, value):
+        year = dt.date.today().year
+        if not (value <= year):
+            raise serializers.ValidationError(
+                'Год выпуска не может быть больше текущего.')
+
+        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Comment."""
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True)
 
     class Meta:
         model = Comment
-        fields = '__all__'
-        read_only_fields = ('post',)
+        fields = ('id', 'text', 'author', 'pub_date')
 
 
-class FollowSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
+class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Review."""
+    author = serializers.SlugRelatedField(
         slug_field='username',
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault())
-    following = serializers.SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all())
+        read_only=True)
 
     class Meta:
-        model = Follow
+        model = Review
         fields = '__all__'
-        validators = (
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=('user', 'following'),
-                message=('Подписка на автора оформлена!')),
-        )
+        read_only_fields = ['title']
 
-    def validate_following(self, value):
-        if value == self.context['request'].user:
+    def validate(self, data):
+        if self.context['request'].method != 'POST':
+            return data
+
+        title_id = self.context['view'].kwargs.get('title_id')
+        author = self.context['request'].user
+        if Review.objects.filter(
+                author=author, title=title_id).exists():
             raise serializers.ValidationError(
-                'Подписка на самого себя - невозможна!')
+                'Вы оставляли отзыв на это творение.')
+        return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(
+        choices=User.ROLE_CHOICES,
+        required=False,
+        error_messages={
+            'invalid_choice': (
+                'Доступные роли: "user", "moderator", "admin".'
+            ),
+        },
+    )
+
+    class Meta:
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role',
+        )
+        model = User
+        lookup_field = 'username'
+        extra_kwargs = {
+            'url': {'lookup_field': 'username'}}
+
+    def validate_username(self, value):
+        if 'me' == value:
+            raise serializers.ValidationError('запрещенное имя пользователя')
         return value
+
+
+class UserMeSerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(
+        choices=User.ROLE_CHOICES,
+        required=False,
+        read_only=True)
+
+    class Meta:
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role',
+        )
+        model = User
+        read_only_fields = ['username', 'email']
+
+
+class SignupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('username', 'email')
+        model = User
+
+    def validate_username(self, value):
+        if 'me' == value:
+            raise serializers.ValidationError('запрещенное имя пользователя')
+
+        return value
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['confirmation_code'] = serializers.CharField()
+        del self.fields['password']
+
+    def validate(self, attrs):
+        data = {}
+        user = get_object_or_404(User, username=attrs['username'])
+        if user.confirmation_code != attrs['confirmation_code']:
+            raise serializers.ValidationError('не верный код подверждения.')
+        refresh = self.get_token(user)
+
+        data['access'] = str(refresh.access_token)
+
+        return data

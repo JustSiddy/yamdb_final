@@ -1,14 +1,20 @@
 from django.contrib import admin
-from reviews.models import Comment, Group, Post
+from reviews.models import Categorie, Comment, Genre, Review, Title, TitleGenre
 
 
-class PostAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'text', 'pub_date', 'author')
-    search_fields = ('text',)
-    list_filter = ('pub_date',)
+class TitlesAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'pk', 'name', 'year', 'description',
+    )
+    search_fields = ('name',)
+    list_filter = ('name',)
     empty_value_display = '-пусто-'
 
 
-admin.site.register(Post, PostAdmin)
-admin.site.register(Group)
+admin.site.register(Title, TitlesAdmin)
+admin.site.register(Genre)
+admin.site.register(Categorie)
+admin.site.register(TitleGenre)
+admin.site.register(Review)
 admin.site.register(Comment)

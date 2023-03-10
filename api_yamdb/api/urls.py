@@ -1,17 +1,39 @@
-from api.views import CommentViewSet, FollowViewSet, GroupViewSet, PostViewSet
+from api.views import (CategorieViewSet, CommentViewSet,
+                       CustomTokenObtainPairView, GenreViewSet, ReviewViewSet,
+                       SignupViewSet, TitleViewSet, UserMeViewSet, UserViewSet)
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-router_v1 = DefaultRouter()
-router_v1.register('posts', PostViewSet, basename='posts')
-router_v1.register('groups', GroupViewSet, basename='groups')
-router_v1.register('follow', FollowViewSet, basename='followers')
-router_v1.register(
-    r'^posts/(?P<post_id>\d+)/comments',
+app_name = 'api'
+
+v1_router = DefaultRouter()
+
+
+v1_router.register(r'users', UserViewSet, basename='users')
+v1_router.register('titles', TitleViewSet, basename='titles')
+v1_router.register('genres', GenreViewSet, basename='genres')
+v1_router.register('categories', CategorieViewSet, basename='categories')
+v1_router.register(
+    r'titles/(?P<title_id>\d+)/reviews',
+    ReviewViewSet,
+    basename='reviews')
+v1_router.register(
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
     basename='comments')
 
 urlpatterns = [
-    path('v1/', include(router_v1.urls)),
-    path('v1/', include('djoser.urls.jwt')),
+    path(
+        r'v1/users/me/',
+        UserMeViewSet.as_view({'get': 'retrieve', 'patch': 'update'}),
+        name='user_me'),
+    path(
+        r'v1/auth/signup/',
+        SignupViewSet.as_view({'post': 'create'}),
+        name='signup'),
+    path(
+        r'v1/auth/token/',
+        CustomTokenObtainPairView.as_view(),
+        name='token_obtain_pair'),
+    path(r'v1/', include(v1_router.urls)),
 ]
