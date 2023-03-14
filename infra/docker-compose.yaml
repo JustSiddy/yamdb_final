@@ -7,7 +7,7 @@ services:
       - db_value:/var/lib/postgresql/data/
     env_file:
       - ./.env
-
+  
   web:
     image: justs1ddy/yamdb:v1.1
     restart: always
