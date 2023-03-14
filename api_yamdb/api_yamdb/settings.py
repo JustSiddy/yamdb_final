@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -75,8 +76,8 @@ DATABASES = {
         'USER': os.getenv('POSTGRES_USER', default='postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
         'HOST': os.getenv('DB_HOST', default='db'),
-        'PORT': os.getenv('DB_PORT', default='5432')
-    }
+        'PORT': os.getenv('DB_PORT', default='5432'),
+    },
 }
 
 # Password validation
@@ -137,7 +138,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
 }
 
 
